@@ -1,8 +1,8 @@
 # Progress
 
 ## Status
-- Last completed phase: 3
-- Current phase: 4 (not started)
+- Last completed phase: 4
+- Current phase: 5 (not started)
 - Blocked on: nothing
 
 ## Notes
@@ -16,6 +16,7 @@
 - Phase 1: done — `src/pipeline/transform.py` (`single_hop`, `build_chain_tree`), `configs/transform.yaml`; `pytest tests/test_phase1.py` 4/4 passed; 84 playable, non-duplicate files generated from the Phase 0 synthetic clip in ~19s
 - Phase 2: done — `src/pipeline/probe.py` (actual ffprobe metadata + router_target), `src/data/split.py` (leakage-aware source_id splitter); `data_cache/manifest/metadata.jsonl` has 85 rows (1 clean_G0 + 84 transforms), all from one synthetic source_id; `pytest tests/test_phase2.py` 6/6 passed
 - Phase 3: done — real FF++ c23 + Celeb-DF v2 sample (45 videos, 72.1MB) downloaded per user-approved budget; `configs/dataset_sample.yaml` records exact composition; `src/data/download_sample.py`, `src/data/build_real_manifest.py`; `data_cache/manifest/metadata_real.jsonl` (45 real rows, leakage-free split, kept separate from Phase 2's synthetic manifest); full transform chain smoke-tested on 1 real video (84/84 files, no errors) rather than all 45 (user-approved cost tradeoff — see DECISIONS.md); `pytest tests/test_phase3.py` 5/5 passed. Full suite: 18/18 passed.
+- Phase 4: done — `src/preprocessing/` (`frames.py`, `align.py`, `dct.py`, `pipeline.py`); face detection via mediapipe's FaceDetector task (facenet-pytorch's packaging is broken upstream — see DECISIONS.md), model weights auto-downloaded (229KB, logged per BUILD.md's <50MB checkpoint note, no stop needed); verified RGB `[16,3,224,224]` and DCT `[16,784,64]` shapes on 3 real files (real + fake FF++, real Celeb-DF); visual proof in `reports/phase4_samples/` (face-crop grid, DCT heatmap); `pytest tests/test_phase4.py` 5/5 passed. Full suite: 23/23 passed.
 
 ## Known data-cache contents (gitignored, for reference)
 - `data_cache/raw/ffpp/`, `data_cache/raw/celebdf/`: the 45 real downloaded videos + `sample_manifest.json`

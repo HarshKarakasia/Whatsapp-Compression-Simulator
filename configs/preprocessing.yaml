@@ -1,0 +1,12 @@
+# Phase 4: video -> model-ready tensors.
+n_frames: 16
+
+face_crop:
+  scale: 1.3
+  size: 224
+  # mediapipe FaceDetector task model (float16, 229KB) -- see DECISIONS.md
+  # for why mediapipe was picked over facenet-pytorch's MTCNN.
+  model_path: data_cache/models/blaze_face_short_range.tflite
+
+dct:
+  block: 8
