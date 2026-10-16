@@ -1,0 +1,49 @@
+# Multi-codec, multi-generation transformation chain (Phase 1).
+
+# Codec name -> ffmpeg encoder.
+codecs:
+  h264: libx264
+  h265: libx265
+  vp9: libvpx-vp9
+  av1: libsvtav1
+
+# Extra per-codec ffmpeg flags needed to keep encodes fast on CPU (libvpx-vp9
+# and libsvtav1 default to very slow analysis presets otherwise).
+encoder_speed_opts:
+  h264: []
+  h265: []
+  vp9: ["-cpu-used", "5", "-deadline", "realtime"]
+  av1: ["-preset", "10"]
+
+# libsvtav1 rejects -maxrate/-bufsize outside CRF mode ("Max Bitrate only
+# supported with CRF mode"), so it gets -b:v alone (VBR target) with no
+# hard ceiling. All other encoders here get a tight VBV cap via maxrate/bufsize.
+supports_maxrate_bufsize:
+  h264: true
+  h265: true
+  vp9: true
+  av1: false
+
+# Number of re-encode generations ("hops") to chain. Each hop branches into
+# every codec in `codecs`, so total files = len(codecs) + len(codecs)^2 + ...
+# + len(codecs)^depth (4 + 16 + 64 = 84 for depth=3, 4 codecs).
+depth: 3
+
+# Per-hop target recipe: a max resolution box (never upscales, aspect
+# preserved, even dimensions enforced), fps, target bitrate, and GOP length.
+# Same recipe applies regardless of which codec is used at that hop.
+hop_recipes:
+  1: {max_width: 1280, max_height: 720, fps: 30, bitrate: "2400k", gop: 60}
+  2: {max_width: 960,  max_height: 540, fps: 30, bitrate: "1100k", gop: 60}
+  3: {max_width: 640,  max_height: 360, fps: 25, bitrate: "400k",  gop: 50}
+
+# Phase 0 decision (see DECISIONS.md): wrap Harsh's WhatsApp-Compression-
+# Simulator as the implementation for one hop type instead of reimplementing
+# it. It has no GOP control flag, so the h264 hop's gop setting is not
+# applied when routed through the simulator.
+whatsapp_simulator:
+  enabled: true
+  codec: h264
+  script: external/whatsapp-compression-simulator/compress.py
+
+output_dir: data_cache/chains
