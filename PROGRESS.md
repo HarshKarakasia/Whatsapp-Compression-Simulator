@@ -1,8 +1,8 @@
 # Progress
 
 ## Status
-- Last completed phase: 1
-- Current phase: 2 (not started)
+- Last completed phase: 2
+- Current phase: 3 (not started — requires explicit user go-ahead before any download)
 - Blocked on: nothing
 
 ## Notes
@@ -14,6 +14,7 @@
 ## Phase log
 - Phase 0: done — `pytest tests/test_phase0.py` 3/3 passed
 - Phase 1: done — `src/pipeline/transform.py` (`single_hop`, `build_chain_tree`), `configs/transform.yaml`; `pytest tests/test_phase1.py` 4/4 passed; 84 playable, non-duplicate files generated from the Phase 0 synthetic clip in ~19s
+- Phase 2: done — `src/pipeline/probe.py` (actual ffprobe metadata + router_target), `src/data/split.py` (leakage-aware source_id splitter); `data_cache/manifest/metadata.jsonl` has 85 rows (1 clean_G0 + 84 transforms), all from one synthetic source_id; `pytest tests/test_phase2.py` 6/6 passed
 - Phase 1: not started
 - Phase 2: not started
 - Phase 3: not started
