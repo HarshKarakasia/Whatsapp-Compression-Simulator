@@ -1,0 +1,3 @@
+[submodule "external/whatsapp-compression-simulator"]
+	path = external/whatsapp-compression-simulator
+	url = https://github.com/HarshKarakasia/Whatsapp-Compression-Simulator

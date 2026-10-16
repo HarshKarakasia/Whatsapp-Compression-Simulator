@@ -1,0 +1,16 @@
+# Local data/tool paths. Values here are machine-specific; do not assume
+# they're portable across contributors' machines.
+
+# This machine's `brew install ffmpeg` only had source tarballs reachable
+# (bottle host was not), so a from-source build was going to take 15-20+ min
+# compiling x264/x265/aom/dav1d/svt-av1. We used a dedicated conda-forge env
+# instead, which ships prebuilt binaries with the full codec set this project
+# needs (libx264, libx265, libvpx-vp9, libsvtav1). See DECISIONS.md.
+#
+# The base conda env has its own (older, codec-incomplete) ffmpeg package
+# that shadows this one earlier in $PATH, so pipeline code must resolve
+# ffmpeg/ffprobe via these absolute paths rather than relying on PATH.
+ffmpeg_binary: /opt/miniconda3/envs/fyp-ffmpeg/bin/ffmpeg
+ffprobe_binary: /opt/miniconda3/envs/fyp-ffmpeg/bin/ffprobe
+
+data_cache_dir: data_cache

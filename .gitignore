@@ -1,0 +1,13 @@
+data_cache/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+*.egg-info/
+.venv/
+venv/
