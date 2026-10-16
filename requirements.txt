@@ -1,0 +1,5 @@
+# WhatsApp Video Compression Research Pipeline Requirements
+# Python 3.10+ required
+
+# Optional: used for structured tabular data export and comparison analysis
+pandas>=2.0.0
