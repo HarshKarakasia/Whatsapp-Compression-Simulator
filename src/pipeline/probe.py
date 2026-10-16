@@ -124,7 +124,9 @@ def build_phase1_synthetic_manifest() -> list[dict]:
     ffprobe_binary = load_paths()["ffprobe_binary"]
     source_id = "synthetic_test_input"
 
-    paths = [source] + sorted(chain_dir.glob("*.mp4"))
+    # chain_dir is shared with other sources (e.g. Phase 3's real-video
+    # smoke test), so only glob this source's own stem-prefixed outputs.
+    paths = [source] + sorted(chain_dir.glob(f"{source.stem}__*.mp4"))
     rows = build_metadata(paths, source_id, ffprobe_binary)
     write_metadata_jsonl(rows, REPO_ROOT / "data_cache" / "manifest" / "metadata.jsonl")
     return rows

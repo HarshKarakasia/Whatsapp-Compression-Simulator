@@ -1,0 +1,26 @@
+# Phase 3 micro-run sample: exact files pulled from Kaggle, approved by the
+# user on 2026-10-17 (~150-250MB total, 45 videos). source_id groups each
+# real clip with all its corresponding fakes (same identity), derived from
+# FF++'s official id-pairing and Celeb-DF v2's id-in-filename convention.
+
+ffpp:
+  dataset: xdxd003/ff-c23
+  # NOTE: all paths need the "FaceForensics++_C23/" root prefix -- the
+  # dataset's actual file listing nests everything under it.
+  identities:
+    "000": {real: "FaceForensics++_C23/original/000.mp4", fakes: {deepfakes: "FaceForensics++_C23/Deepfakes/000_003.mp4", face2face: "FaceForensics++_C23/Face2Face/000_003.mp4", faceswap: "FaceForensics++_C23/FaceSwap/000_003.mp4", neuraltextures: "FaceForensics++_C23/NeuralTextures/000_003.mp4"}}
+    "001": {real: "FaceForensics++_C23/original/001.mp4", fakes: {deepfakes: "FaceForensics++_C23/Deepfakes/001_870.mp4", face2face: "FaceForensics++_C23/Face2Face/001_870.mp4", faceswap: "FaceForensics++_C23/FaceSwap/001_870.mp4", neuraltextures: "FaceForensics++_C23/NeuralTextures/001_870.mp4"}}
+    "002": {real: "FaceForensics++_C23/original/002.mp4", fakes: {deepfakes: "FaceForensics++_C23/Deepfakes/002_006.mp4", face2face: "FaceForensics++_C23/Face2Face/002_006.mp4", faceswap: "FaceForensics++_C23/FaceSwap/002_006.mp4", neuraltextures: "FaceForensics++_C23/NeuralTextures/002_006.mp4"}}
+    "004": {real: "FaceForensics++_C23/original/004.mp4", fakes: {deepfakes: "FaceForensics++_C23/Deepfakes/004_982.mp4", face2face: "FaceForensics++_C23/Face2Face/004_982.mp4", faceswap: "FaceForensics++_C23/FaceSwap/004_982.mp4", neuraltextures: "FaceForensics++_C23/NeuralTextures/004_982.mp4"}}
+    "005": {real: "FaceForensics++_C23/original/005.mp4", fakes: {deepfakes: "FaceForensics++_C23/Deepfakes/005_010.mp4", face2face: "FaceForensics++_C23/Face2Face/005_010.mp4", faceswap: "FaceForensics++_C23/FaceSwap/005_010.mp4", neuraltextures: "FaceForensics++_C23/NeuralTextures/005_010.mp4"}}
+
+celebdf:
+  dataset: reubensuju/celeb-df-v2
+  identities:
+    "id0":  {real: "Celeb-real/id0_0000.mp4",  fakes: ["Celeb-synthesis/id0_id16_0005.mp4", "Celeb-synthesis/id0_id16_0006.mp4", "Celeb-synthesis/id0_id16_0007.mp4"]}
+    "id16": {real: "Celeb-real/id16_0000.mp4", fakes: ["Celeb-synthesis/id16_id17_0000.mp4", "Celeb-synthesis/id16_id17_0001.mp4", "Celeb-synthesis/id16_id17_0002.mp4"]}
+    "id17": {real: "Celeb-real/id17_0000.mp4", fakes: ["Celeb-synthesis/id17_id16_0001.mp4", "Celeb-synthesis/id17_id16_0002.mp4", "Celeb-synthesis/id17_id16_0003.mp4"]}
+    "id19": {real: "Celeb-real/id19_0000.mp4", fakes: ["Celeb-synthesis/id19_id28_0005.mp4", "Celeb-synthesis/id19_id28_0006.mp4", "Celeb-synthesis/id19_id28_0007.mp4"]}
+    "id20": {real: "Celeb-real/id20_0000.mp4", fakes: ["Celeb-synthesis/id20_id21_0001.mp4", "Celeb-synthesis/id20_id21_0002.mp4", "Celeb-synthesis/id20_id21_0003.mp4"]}
+
+output_dir: data_cache/raw
