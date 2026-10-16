@@ -1,0 +1,44 @@
+# Model architecture (Phase 5). Loss weights live here too once Phase 6
+# adds them -- not yet, to avoid guessing values before they're needed.
+
+# Router/expert count. The full design targets K=13 (one cluster per
+# codec x depth combination + clean), documented as the intended target,
+# but at this project's dataset scale (~80-120 source videos for the
+# micro-run) spreading samples over 13 clusters starves the router's
+# load-balancing loss. Reduced to 5 for anything actually trained here --
+# see BUILD.md Appendix A. Change this, not the code, if the real dataset
+# budget ends up larger.
+num_experts: 5
+top_k: 2
+
+spatial:
+  # ViT-B/14 standard dims. Phase 5 uses a random-initialized backbone of
+  # this exact shape (see DECISIONS.md) -- real pretrained DINOv2 weights
+  # load in Phase 7's actual Kaggle training script, not here.
+  embed_dim: 768
+  patch_size: 14
+  img_size: 224
+  depth: 12
+  num_heads: 12
+  mlp_ratio: 4.0
+  lora_rank: 8
+  lora_alpha: 8
+  lora_targets: [q_proj, v_proj]
+
+frequency:
+  embed_dim: 768
+  depth: 4
+  num_heads: 8
+  mlp_ratio: 4.0
+  dct_coeffs: 64
+  n_tokens: 784
+
+fusion:
+  embed_dim: 768
+  num_heads: 8
+
+router:
+  hidden_dim: 256
+
+experts:
+  hidden_dim: 256

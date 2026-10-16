@@ -1,0 +1,15 @@
+Phase 5 architecture parameter summary
+(scaffold -- random init, not trained; see DECISIONS.md)
+
+module         total params   trainable params
+----------------------------------------------
+spatial          86,001,408         71,175,168
+frequency        29,005,056         29,005,056
+fusion            2,365,440          2,365,440
+router              198,149            198,149
+experts             985,605            985,605
+----------------------------------------------
+TOTAL           118,555,658        103,729,418
+
+num_experts (K) = 5, top_k = 2
+spatial branch is frozen except LoRA adapters (rank=8, targets=['q_proj', 'v_proj'])
