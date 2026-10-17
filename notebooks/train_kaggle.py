@@ -9,7 +9,10 @@ execute this itself -- upload and run it manually, per BUILD.md Phase 7.
 2. On kaggle.com: New Dataset -> upload that zip -> note its slug, e.g.
    "your-username/deepfake-detection-fyp".
 3. New Notebook -> Add Input -> attach that dataset.
-4. Notebook settings -> Accelerator -> GPU T4 x2.
+4. Notebook settings -> Accelerator -> GPU T4 x2, AND Internet -> On
+   (needed both for `pip install` and to download the ~330MB pretrained
+   DINOv2 checkpoint on first use -- Internet is a separate toggle from
+   the accelerator setting, easy to miss).
 5. Upload this file as the notebook's code (or paste its contents into
    a cell), fix REPO_ROOT below to match your dataset's mount path, run.
 6. When done, download `/kaggle/working/checkpoint.pt` and
@@ -20,9 +23,14 @@ execute this itself -- upload and run it manually, per BUILD.md Phase 7.
 === What this runs ===
 The exact same src/train/train.py used for the local CPU dry-run, just
 with device="cuda", the real preprocessing config (n_frames=16, not the
-dry-run's reduced value), a larger batch, and periodic checkpointing
-(Kaggle sessions have a ~9-12hr execution limit -- see checkpoint_every
-and resume_from below if a run needs to continue across sessions).
+dry-run's reduced value), a larger batch, periodic checkpointing (Kaggle
+sessions have a ~9-12hr execution limit -- see checkpoint_every and
+resume_from below if a run needs to continue across sessions), and
+pretrained_spatial=True -- real DINOv2 ViT-B/14 weights (~330MB, timm's
+vit_base_patch14_dinov2.lvd142m), not the random-init backbone the local
+dry-run uses. Verified byte-exact against timm's own forward pass before
+this was wired in (see DECISIONS.md) -- training from scratch on this
+project's ~45-video sample would not produce a working detector.
 
 === Experiment tracking ===
 Logs to a local CSV only, no W&B or other tracking service wired in --
@@ -38,7 +46,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import subprocess  # noqa: E402
 
-subprocess.run([sys.executable, "-m", "pip", "install", "-q", "mediapipe"], check=True)
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "mediapipe", "timm"], check=True)
 
 import torch  # noqa: E402
 
@@ -59,6 +67,7 @@ if __name__ == "__main__":
         log_path="/kaggle/working/train_log.csv",
         save_optimizer_state=True,
         checkpoint_every=50,
+        pretrained_spatial=True,
         # resume_from="/kaggle/working/checkpoint.pt",  # uncomment to continue a prior run
     )
     print(f"done: {len(logs)} steps. Download /kaggle/working/checkpoint.pt and train_log.csv.")

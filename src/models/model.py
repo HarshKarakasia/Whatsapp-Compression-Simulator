@@ -27,13 +27,13 @@ def load_config(path: Path | str | None = None) -> dict:
 
 
 class DeepfakeDetector(nn.Module):
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: dict | None = None, pretrained_spatial: bool = False):
         super().__init__()
         config = config or load_config()
         self.config = config
         embed_dim = config["spatial"]["embed_dim"]
 
-        self.spatial = SpatialBranch(config["spatial"])
+        self.spatial = SpatialBranch(config["spatial"], pretrained=pretrained_spatial)
         self.frequency = FrequencyBranch(config["frequency"])
         self.fusion = FusionModule(config["fusion"])
         self.router = Router(embed_dim, config["num_experts"], config["router"]["hidden_dim"], config["top_k"])

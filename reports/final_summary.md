@@ -12,7 +12,7 @@ Status snapshot as of Phase 10. This document pulls every phase's artifacts into
 |---|---|---|
 | Face-crop grid | `reports/phase4_samples/face_crop_grid.png` | Real aligned face crops from 3 real files (incl. a real/deepfake pair of the same identity) |
 | DCT heatmap | `reports/phase4_samples/dct_heatmap.png` | Real per-block DCT energy on a real face crop — face-shaped low-energy silhouette |
-| Architecture parameter summary | `reports/architecture_summary.txt` | Real per-module parameter counts (118.6M total, 103.7M trainable) of the Phase 5 scaffold |
+| Architecture parameter summary | `reports/architecture_summary.txt` | Real per-module parameter counts (118.6M total, 32.8M trainable) of the scaffold -- corrected after a frozen-parameters bug was found and fixed; see DECISIONS.md |
 | Dummy-data convergence curve | `reports/phase6_dummy_convergence.png` | Real 5-step AdamW run on a **fixed dummy batch** — proves the optimization math, not real learning |
 | Local dry-run loss log (chart) | `reports/phase7_dry_run_log.png` | Real 5-step dry run on **real preprocessed videos**, different random batch each step — proves the training loop doesn't crash, not a convergence curve |
 | Local dry-run loss log (raw) | `reports/train_log.csv` | Same run, raw CSV |
@@ -50,7 +50,7 @@ No HTML architecture diagram or PPT file was found anywhere in this project dire
 - K=5 experts (not the full K=13 design) — Appendix A's reasoning: ~80-120 source videos spread over 13 clusters starves the router's balancing loss at this project's scale. `configs/model.yaml`'s `router_clusters` maps clean_G0 + a reduced 2-codec×2-depth set (h264_G1/G2, h265_G1/G2) to the 5 experts explicitly; anything else falls back to a default cluster.
 - AdamW, lr=1e-4, wd=0.05 — BUILD.md's specified hyperparameters, also what the Phase 6 dummy-convergence proof and Phase 7 dry-run actually use.
 - Face detector: mediapipe (not facenet-pytorch — its packaging is broken on current pip/setuptools, see DECISIONS.md).
-- Spatial branch is currently **randomly initialized**, not loaded from pretrained DINOv2 weights — deliberately deferred to the real Kaggle training script (the ~330MB+ download crosses this project's own 50MB auto-download threshold; asked the user, confirmed random-init-for-now). Shape-identical to real ViT-B/14, so swapping in real weights is a drop-in once that happens.
+- Spatial branch defaults to **random initialization** (`pretrained=False`) for the local architecture-scaffold phases, but real DINOv2 ViT-B/14 pretrained weight loading is now implemented and verified byte-exact against timm's own forward pass (`SpatialBranch.load_pretrained_dinov2()`, `pretrained=True`). `notebooks/train_kaggle.py` uses it for the real Kaggle run — training from scratch on this project's ~45-video sample would not produce a working detector, so this was necessary before a real training run would be worth doing. See DECISIONS.md for two real bugs found and fixed while verifying it (a LayerNorm epsilon mismatch and a long-standing parameter-freezing bug from Phase 5).
 - WhatsApp-hop transforms wrap a teammate's existing simulator (`HarshKarakasia/Whatsapp-Compression-Simulator`) rather than reimplementing it, per an evidence-based Phase 0 evaluation.
 
 ## Experimental Setup

@@ -1,9 +1,17 @@
 # Progress
 
 ## Status
-- Last completed phase: 10 — ALL BUILD.md PHASES (0-10) COMPLETE at their scoped depth
+- Last completed phase: 10 — ALL BUILD.md PHASES (0-10) COMPLETE at their scoped depth, PLUS real pretrained DINOv2 weight loading implemented post-Phase-10 (see below)
 - Current phase: none (done, pending real Kaggle training to move Phases 7-9 from scaffolded to real)
 - Blocked on: nothing locally; real trained checkpoint depends on user running Kaggle notebook (Phase 7)
+
+## Post-Phase-10: real pretrained DINOv2 weights (no longer a blocker)
+
+`SpatialBranch(pretrained=True)` used to just raise `NotImplementedError` — running `notebooks/train_kaggle.py` as it stood would have trained an 86M-param ViT-B/14 from scratch on 45 videos, which would not have worked. This is now implemented and verified byte-exact against timm's own forward pass (`load_pretrained_dinov2()` in `src/models/spatial.py`). Found and fixed two real bugs along the way — full detail in DECISIONS.md:
+1. Hugging Face's Xet download backend hung indefinitely in this sandbox (fixed: `HF_HUB_DISABLE_XET=1`).
+2. A pre-existing Phase 5 bug: parameter freezing was piecemeal and missed ~71M params that should have been frozen (norm1/norm2/k_proj/out_proj/mlp in every block) — `reports/architecture_summary.txt`'s "103.7M trainable" was wrong; corrected to 32.8M. Regenerated all affected report artifacts.
+
+`notebooks/train_kaggle.py` now passes `pretrained_spatial=True`; the local dry-run still defaults to `False` (no network/timm needed for routine local testing). `tests/test_pretrained_dinov2.py` added, skipped unless the ~330MB checkpoint is already cached locally so the routine suite stays fast. Full suite: 52/52 passing.
 
 ## Honest final status (Phase 10 capstone)
 

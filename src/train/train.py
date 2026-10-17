@@ -83,6 +83,7 @@ def train(
     checkpoint_every: int | None = None,
     resume_from: Path | str | None = None,
     manifest_rows: list[dict] | None = None,
+    pretrained_spatial: bool = False,
 ) -> list[dict]:
     """n_frames_override: local CPU dry-run is too slow at the production
     n_frames (16) -- measured ~140s/step full-scale vs ~35s/step at 4
@@ -94,6 +95,9 @@ def train(
     limit; resume_from picks a prior checkpoint back up via `load_checkpoint`.
     manifest_rows: pass explicitly (e.g. a bigger real-training manifest on
     Kaggle); defaults to this repo's Phase 3 sample via load_real_manifest().
+    pretrained_spatial: load real DINOv2 weights (needs timm + network on
+    first call, ~330MB, cached after). Off by default so the local dry-run
+    never requires it; notebooks/train_kaggle.py passes True.
     """
     model_config = load_model_config()
     preprocessing_config = load_preprocessing_config()
@@ -102,7 +106,7 @@ def train(
     rows = manifest_rows if manifest_rows is not None else load_real_manifest()
 
     torch.manual_seed(seed)
-    model = DeepfakeDetector(model_config).to(device)
+    model = DeepfakeDetector(model_config, pretrained_spatial=pretrained_spatial).to(device)
     opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=lr, weight_decay=weight_decay)
     start_step = 0
     if resume_from is not None:

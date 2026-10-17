@@ -37,15 +37,21 @@ contrastive:
   temperature: 0.07
 
 spatial:
-  # ViT-B/14 standard dims. Phase 5 uses a random-initialized backbone of
-  # this exact shape (see DECISIONS.md) -- real pretrained DINOv2 weights
-  # load in Phase 7's actual Kaggle training script, not here.
+  # ViT-B/14 standard dims, matching real DINOv2 (vit_base_patch14_dinov2)
+  # exactly so pretrained=True's weight remap (SpatialBranch.
+  # load_pretrained_dinov2) lines up. layer_norm_eps=1e-6 is DINOv2's
+  # actual value (confirmed against the real model, not PyTorch's
+  # LayerNorm default of 1e-5) -- without it the frozen backbone's
+  # forward pass silently diverges from the real pretrained model by a
+  # small amount per layer that compounds across 12 layers into a large
+  # difference. Found and fixed during the first real pretrained-load.
   embed_dim: 768
   patch_size: 14
   img_size: 224
   depth: 12
   num_heads: 12
   mlp_ratio: 4.0
+  layer_norm_eps: 1.0e-6
   lora_rank: 8
   lora_alpha: 8
   lora_targets: [q_proj, v_proj]
