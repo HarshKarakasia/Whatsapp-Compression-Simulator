@@ -1,9 +1,27 @@
 # Progress
 
 ## Status
-- Last completed phase: 9 (untrained-architecture-demo mode -- no real checkpoint exists)
-- Current phase: 10 (not started)
+- Last completed phase: 10 — ALL BUILD.md PHASES (0-10) COMPLETE at their scoped depth
+- Current phase: none (done, pending real Kaggle training to move Phases 7-9 from scaffolded to real)
 - Blocked on: nothing locally; real trained checkpoint depends on user running Kaggle notebook (Phase 7)
+
+## Honest final status (Phase 10 capstone)
+
+| Phase | Status |
+|---|---|
+| 0 Repo scaffold | real |
+| 1 Transform pipeline | real (synthetic + 1 real video at full scale) |
+| 2 Metadata + split | real (synthetic) |
+| 3 Real dataset | real (45 videos, user-approved budget) |
+| 4 Preprocessing | real (3 real files) |
+| 5 Architecture | architecture-only (random weights, shape/gradient-verified) |
+| 6 Losses | architecture-only (dummy data, math-verified) |
+| 7 Training loop | local dry-run only (real data, random weights) -- **needs user action on Kaggle** |
+| 8 Evaluation | synthetic-only (harness verified, no real predictions) |
+| 9 Demo | untrained-demo-only (real pipeline, random weights) |
+| 10 Report packaging | this file + reports/final_summary.md |
+
+Full detail in `reports/final_summary.md` and this file's phase log below. **Nothing in this repo claims the model can detect deepfakes** -- only that every piece is mechanically correct and ready for real results once the user runs `notebooks/train_kaggle.py` on Kaggle and places the checkpoint at `data_cache/checkpoints/checkpoint.pt` (Phase 8/9 both auto-detect it, no code changes needed).
 
 ## Notes
 - ffmpeg: Homebrew fell back to a from-source build in this sandbox (bottle host unreachable) — would have taken 15-20+ min. Switched to a dedicated conda-forge env (`fyp-ffmpeg`) instead, which has the full codec set (libx264/libx265/libvpx-vp9/libsvtav1) needed for Phase 1. Pipeline code must resolve ffmpeg/ffprobe via `configs/paths.yaml` (`ffmpeg_binary`/`ffprobe_binary`), not `$PATH` — see DECISIONS.md.
@@ -24,6 +42,7 @@
 - **Action needed from the user**: run `notebooks/train_kaggle.py` on Kaggle (GPU T4x2) per its header instructions, then place the downloaded checkpoint at `data_cache/checkpoints/checkpoint.pt` before Phase 9 can demo a real trained model instead of the untrained-architecture-demo mode.
 - Phase 8: done (synthetic branch) — `src/eval/metrics.py` (AUC/ACC/ECE), `slicing.py` (depth + seen/unseen, keyed off router_target), `benchmark.py` (MoE vs single-head vs no-L_con comparison table, by depth and seen/unseen). No real checkpoint exists, so `make_phase8_reports.py` generates clearly-watermarked synthetic predictions (`SYNTHETIC_` filename prefix, red "NOT real results" chart title) with a designed depth-degradation pattern, purely to prove the harness works — matches BUILD.md's explicit allowance for this case. Found+fixed a table-formatting bug (columns running together). `pytest tests/test_phase8.py` 9/9 passed. Full suite: 47/47 passed.
 - Phase 9: done — `src/api/main.py` (FastAPI `/predict`: p_fake, predicted_history, gate_weights, per-frame saliency via vanilla gradient), `ui/app.py` (Streamlit: upload, verdict, gate-weight bar chart, saliency line chart, best-effort actual-vs-predicted history). No real checkpoint exists so every response is explicitly labeled "untrained model — architecture demo only" (forced by circumstance, not silently chosen — the API auto-switches the moment `data_cache/checkpoints/checkpoint.pt` exists). `configs/paths.yaml`/`​.env.example` document the `API_URL` env var. Tested with a real uvicorn subprocess + httpx (matches BUILD.md's spec exactly) and a genuine end-to-end Streamlit test via `AppTest.upload()` (simulated file upload + button click, not just a page-loads smoke test). `pytest tests/test_phase9.py` 3/3 passed. Full suite: 50/50 passed.
+- Phase 10: done — `reports/final_summary.md` (all slide-placeholder sections filled honestly, explicitly marking Phases 7-9 as scaffolded/untrained where true), two previously-missing loss-curve charts generated (`phase6_dummy_convergence.png`, `phase7_dry_run_log.png`). Checked explicitly (not assumed) that no PPT/HTML diagram exists anywhere in the project directory. No code tests apply (manual review phase per BUILD.md). All 50 tests across Phases 0-9 still passing.
 
 ## Known data-cache contents (gitignored, for reference)
 - `data_cache/raw/ffpp/`, `data_cache/raw/celebdf/`: the 45 real downloaded videos + `sample_manifest.json`
