@@ -1,8 +1,8 @@
 # Progress
 
 ## Status
-- Last completed phase: 8 (synthetic sanity-check branch -- no real checkpoint exists)
-- Current phase: 9 (not started)
+- Last completed phase: 9 (untrained-architecture-demo mode -- no real checkpoint exists)
+- Current phase: 10 (not started)
 - Blocked on: nothing locally; real trained checkpoint depends on user running Kaggle notebook (Phase 7)
 
 ## Notes
@@ -23,6 +23,7 @@
 - Phase 7: done (local side) — `src/train/dataset.py` (SourceGroupedBatcher), `src/train/train.py` (training loop, checkpointing, CSV logging, device param, checkpoint_every/resume_from for Kaggle session limits). Found the full-scale model is ~140s/step on CPU (measured) -- dry-run uses a reduced n_frames to stay cheap, matching Phase 5/6's own precedent. Also found + fixed an oversized checkpoint (1.3GB with full AdamW state -> 452MB without, now an explicit flag). Real dry-run: 5 steps, ~100s, checkpoint written + reloaded successfully. `notebooks/train_kaggle.py` written for the user to run manually (Claude Code cannot execute Kaggle notebooks) -- thin wrapper around the same train.py, not a reimplementation. Experiment tracking defaulted to local CSV only, no W&B (flagged, not silently assumed to be final). `pytest tests/test_phase7.py` 4/4 passed. Full suite: 38/38 passed.
 - **Action needed from the user**: run `notebooks/train_kaggle.py` on Kaggle (GPU T4x2) per its header instructions, then place the downloaded checkpoint at `data_cache/checkpoints/checkpoint.pt` before Phase 9 can demo a real trained model instead of the untrained-architecture-demo mode.
 - Phase 8: done (synthetic branch) — `src/eval/metrics.py` (AUC/ACC/ECE), `slicing.py` (depth + seen/unseen, keyed off router_target), `benchmark.py` (MoE vs single-head vs no-L_con comparison table, by depth and seen/unseen). No real checkpoint exists, so `make_phase8_reports.py` generates clearly-watermarked synthetic predictions (`SYNTHETIC_` filename prefix, red "NOT real results" chart title) with a designed depth-degradation pattern, purely to prove the harness works — matches BUILD.md's explicit allowance for this case. Found+fixed a table-formatting bug (columns running together). `pytest tests/test_phase8.py` 9/9 passed. Full suite: 47/47 passed.
+- Phase 9: done — `src/api/main.py` (FastAPI `/predict`: p_fake, predicted_history, gate_weights, per-frame saliency via vanilla gradient), `ui/app.py` (Streamlit: upload, verdict, gate-weight bar chart, saliency line chart, best-effort actual-vs-predicted history). No real checkpoint exists so every response is explicitly labeled "untrained model — architecture demo only" (forced by circumstance, not silently chosen — the API auto-switches the moment `data_cache/checkpoints/checkpoint.pt` exists). `configs/paths.yaml`/`​.env.example` document the `API_URL` env var. Tested with a real uvicorn subprocess + httpx (matches BUILD.md's spec exactly) and a genuine end-to-end Streamlit test via `AppTest.upload()` (simulated file upload + button click, not just a page-loads smoke test). `pytest tests/test_phase9.py` 3/3 passed. Full suite: 50/50 passed.
 
 ## Known data-cache contents (gitignored, for reference)
 - `data_cache/raw/ffpp/`, `data_cache/raw/celebdf/`: the 45 real downloaded videos + `sample_manifest.json`

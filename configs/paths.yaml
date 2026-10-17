@@ -14,3 +14,11 @@ ffmpeg_binary: /opt/miniconda3/envs/fyp-ffmpeg/bin/ffmpeg
 ffprobe_binary: /opt/miniconda3/envs/fyp-ffmpeg/bin/ffprobe
 
 data_cache_dir: data_cache
+
+# Phase 9: where ui/app.py looks for the FastAPI backend. Overridable via
+# the API_URL env var (see .env.example) -- the Streamlit app reads the
+# env var itself rather than this file, since Streamlit Cloud / a
+# container deployment would set it as an env var, not edit a repo file.
+# This entry exists so the default is visible/documented somewhere other
+# than buried in ui/app.py's source.
+api_url: http://127.0.0.1:8000
