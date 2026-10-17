@@ -4,8 +4,13 @@ import torch.nn as nn
 
 
 class Router(nn.Module):
-    """forward(z [B, D]) -> gate_weights [B, K], top-2 per sample, zeroed
-    elsewhere and renormalized to sum to 1 over the selected experts."""
+    """forward(z [B, D]) -> dict with:
+    - gate_weights [B, K]: top-2 per sample, zeroed elsewhere, renormalized
+      to sum to 1 over the selected experts -- what Experts actually uses.
+    - probs [B, K]: raw softmax over all K experts, pre-top-k -- what
+      L_bal's load-balancing math needs.
+    - logits [B, K]: pre-softmax -- what L_route's cross-entropy needs.
+    """
 
     def __init__(self, embed_dim: int, num_experts: int, hidden_dim: int, top_k: int = 2):
         super().__init__()
@@ -15,7 +20,7 @@ class Router(nn.Module):
             nn.Linear(embed_dim, hidden_dim), nn.GELU(), nn.Linear(hidden_dim, num_experts)
         )
 
-    def forward(self, z: torch.Tensor) -> torch.Tensor:
+    def forward(self, z: torch.Tensor) -> dict:
         logits = self.gate(z)  # [B, K]
         probs = torch.softmax(logits, dim=-1)
 
@@ -24,4 +29,4 @@ class Router(nn.Module):
 
         gate_weights = torch.zeros_like(probs)
         gate_weights.scatter_(1, top_idx, top_vals)
-        return gate_weights
+        return {"gate_weights": gate_weights, "probs": probs, "logits": logits}

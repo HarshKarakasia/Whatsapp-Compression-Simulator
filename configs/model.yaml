@@ -11,6 +11,31 @@
 num_experts: 5
 top_k: 2
 
+# L_route's cross-entropy target: router_target string (from Phase 2's
+# probe.py, e.g. "h264_G1") -> cluster index in [0, num_experts).
+# Matches Appendix A's reduced scheme exactly: clean + 2 codecs x 2 depths
+# = 5 clusters. Any router_target not listed here (h264_G3, h265_G3, any
+# vp9/av1 target) falls back to `default` -- a real training run at this
+# scale should only use data whose router_target is explicitly listed,
+# since the fallback exists for L_route's loss math to stay well-defined,
+# not as a real cluster assignment.
+router_clusters:
+  clean_G0: 0
+  h264_G1: 1
+  h264_G2: 2
+  h265_G1: 3
+  h265_G2: 4
+  default: 0
+
+loss_weights:
+  cls: 1.0
+  route: 0.5
+  con: 0.3
+  bal: 0.1
+
+contrastive:
+  temperature: 0.07
+
 spatial:
   # ViT-B/14 standard dims. Phase 5 uses a random-initialized backbone of
   # this exact shape (see DECISIONS.md) -- real pretrained DINOv2 weights

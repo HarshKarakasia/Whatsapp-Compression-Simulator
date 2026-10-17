@@ -51,7 +51,13 @@ class DeepfakeDetector(nn.Module):
 
         z_video = z_frame.reshape(b, f, -1).mean(dim=1)  # [B, D]
 
-        gate_weights = self.router(z_video)  # [B, K]
-        logits = self.experts(z_video, gate_weights)  # [B, 1]
+        router_out = self.router(z_video)
+        logits = self.experts(z_video, router_out["gate_weights"])  # [B, 1]
 
-        return {"logits": logits, "gate_weights": gate_weights, "z_video": z_video}
+        return {
+            "logits": logits,
+            "gate_weights": router_out["gate_weights"],
+            "router_probs": router_out["probs"],
+            "router_logits": router_out["logits"],
+            "z_video": z_video,
+        }

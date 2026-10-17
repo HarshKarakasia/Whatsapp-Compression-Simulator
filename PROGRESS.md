@@ -1,8 +1,8 @@
 # Progress
 
 ## Status
-- Last completed phase: 5
-- Current phase: 6 (not started)
+- Last completed phase: 6
+- Current phase: 7 (not started)
 - Blocked on: nothing
 
 ## Notes
@@ -19,6 +19,7 @@
 - Phase 4: done — `src/preprocessing/` (`frames.py`, `align.py`, `dct.py`, `pipeline.py`); face detection via mediapipe's FaceDetector task (facenet-pytorch's packaging is broken upstream — see DECISIONS.md), model weights auto-downloaded (229KB, logged per BUILD.md's <50MB checkpoint note, no stop needed); verified RGB `[16,3,224,224]` and DCT `[16,784,64]` shapes on 3 real files (real + fake FF++, real Celeb-DF); visual proof in `reports/phase4_samples/` (face-crop grid, DCT heatmap); `pytest tests/test_phase4.py` 5/5 passed. Full suite: 23/23 passed.
 - Phase 5: done — `src/models/` (`spatial.py` ViT-B/14-shaped + LoRA rank-8 q/v, `frequency.py` 4-layer/8-head DCT transformer, `fusion.py` cross-attention, `router.py` soft top-2, `experts.py`, `model.py` ties it together); `configs/model.yaml` (K=5, all dims). DINOv2 pretrained weights (~330MB+) deliberately deferred to Phase 7 — user confirmed random-init-for-now after being asked (crosses the 50MB auto-download threshold); architecture is shape-identical to real ViT-B/14 so swapping in real weights later is a drop-in. Verified: dummy batch (B=2,F=4) end-to-end, all shapes correct, exactly top-2 gate weights nonzero per sample, clean backward pass (103.7M/118.6M params trainable, no NaN grads). `reports/architecture_summary.txt` written. `pytest tests/test_phase5.py` 7/7 passed. Full suite: 30/30 passed.
 - Note: BUILD.md mentions an "HTML architecture diagram (already built)" as part of Phase 5's deliverable — not present in this repo, referenced as existing elsewhere (report/slides). Pull it in for Phase 10 if available.
+- Phase 6: done — `src/losses/` (`classification.py` BCE, `routing.py` CE vs router_target cluster, `contrastive.py` source-aware InfoNCE τ=0.07, `balance.py` Switch-style, `total.py` combiner using `configs/model.yaml`'s `loss_weights`). Router/model updated to expose raw logits/probs needed by L_route/L_bal. Found+fixed a real `-inf * 0 = NaN` bug in L_con. All losses finite/non-negative on dummy data; L_con sanity-checked (≈0 well-separated, 14.3 adversarial); 5-step dummy AdamW run (lr=1e-4, wd=0.05, matching real Phase 7 hyperparameters) shows clean monotonic loss decrease. `pytest tests/test_phase6.py` 4/4 passed. Full suite: 34/34 passed.
 
 ## Known data-cache contents (gitignored, for reference)
 - `data_cache/raw/ffpp/`, `data_cache/raw/celebdf/`: the 45 real downloaded videos + `sample_manifest.json`
