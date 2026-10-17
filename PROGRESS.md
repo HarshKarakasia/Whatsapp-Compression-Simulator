@@ -1,9 +1,9 @@
 # Progress
 
 ## Status
-- Last completed phase: 7 (local dry-run only -- real training needs the user to run notebooks/train_kaggle.py on Kaggle manually, Claude Code cannot execute it)
-- Current phase: 8 (not started)
-- Blocked on: nothing locally; real trained checkpoint depends on user running Kaggle notebook
+- Last completed phase: 8 (synthetic sanity-check branch -- no real checkpoint exists)
+- Current phase: 9 (not started)
+- Blocked on: nothing locally; real trained checkpoint depends on user running Kaggle notebook (Phase 7)
 
 ## Notes
 - ffmpeg: Homebrew fell back to a from-source build in this sandbox (bottle host unreachable) — would have taken 15-20+ min. Switched to a dedicated conda-forge env (`fyp-ffmpeg`) instead, which has the full codec set (libx264/libx265/libvpx-vp9/libsvtav1) needed for Phase 1. Pipeline code must resolve ffmpeg/ffprobe via `configs/paths.yaml` (`ffmpeg_binary`/`ffprobe_binary`), not `$PATH` — see DECISIONS.md.
@@ -22,6 +22,7 @@
 - Phase 6: done — `src/losses/` (`classification.py` BCE, `routing.py` CE vs router_target cluster, `contrastive.py` source-aware InfoNCE τ=0.07, `balance.py` Switch-style, `total.py` combiner using `configs/model.yaml`'s `loss_weights`). Router/model updated to expose raw logits/probs needed by L_route/L_bal. Found+fixed a real `-inf * 0 = NaN` bug in L_con. All losses finite/non-negative on dummy data; L_con sanity-checked (≈0 well-separated, 14.3 adversarial); 5-step dummy AdamW run (lr=1e-4, wd=0.05, matching real Phase 7 hyperparameters) shows clean monotonic loss decrease. `pytest tests/test_phase6.py` 4/4 passed. Full suite: 34/34 passed.
 - Phase 7: done (local side) — `src/train/dataset.py` (SourceGroupedBatcher), `src/train/train.py` (training loop, checkpointing, CSV logging, device param, checkpoint_every/resume_from for Kaggle session limits). Found the full-scale model is ~140s/step on CPU (measured) -- dry-run uses a reduced n_frames to stay cheap, matching Phase 5/6's own precedent. Also found + fixed an oversized checkpoint (1.3GB with full AdamW state -> 452MB without, now an explicit flag). Real dry-run: 5 steps, ~100s, checkpoint written + reloaded successfully. `notebooks/train_kaggle.py` written for the user to run manually (Claude Code cannot execute Kaggle notebooks) -- thin wrapper around the same train.py, not a reimplementation. Experiment tracking defaulted to local CSV only, no W&B (flagged, not silently assumed to be final). `pytest tests/test_phase7.py` 4/4 passed. Full suite: 38/38 passed.
 - **Action needed from the user**: run `notebooks/train_kaggle.py` on Kaggle (GPU T4x2) per its header instructions, then place the downloaded checkpoint at `data_cache/checkpoints/checkpoint.pt` before Phase 9 can demo a real trained model instead of the untrained-architecture-demo mode.
+- Phase 8: done (synthetic branch) — `src/eval/metrics.py` (AUC/ACC/ECE), `slicing.py` (depth + seen/unseen, keyed off router_target), `benchmark.py` (MoE vs single-head vs no-L_con comparison table, by depth and seen/unseen). No real checkpoint exists, so `make_phase8_reports.py` generates clearly-watermarked synthetic predictions (`SYNTHETIC_` filename prefix, red "NOT real results" chart title) with a designed depth-degradation pattern, purely to prove the harness works — matches BUILD.md's explicit allowance for this case. Found+fixed a table-formatting bug (columns running together). `pytest tests/test_phase8.py` 9/9 passed. Full suite: 47/47 passed.
 
 ## Known data-cache contents (gitignored, for reference)
 - `data_cache/raw/ffpp/`, `data_cache/raw/celebdf/`: the 45 real downloaded videos + `sample_manifest.json`

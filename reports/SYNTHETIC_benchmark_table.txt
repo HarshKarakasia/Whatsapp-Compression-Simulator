@@ -1,0 +1,25 @@
+SYNTHETIC SANITY CHECK -- NOT REAL RESULTS
+(no trained checkpoint exists yet; see DECISIONS.md Phase 8 entry)
+
+variant       slice        key         n     auc     acc     ece
+moe           overall      all       260   0.998   0.973   0.125
+moe           depth        G0         20   1.000   1.000   0.073
+moe           depth        G1         80   1.000   0.988   0.105
+moe           depth        G2         80   0.999   0.975   0.125
+moe           depth        G3         80   0.994   0.950   0.176
+single_head   overall      all       260   0.952   0.881   0.139
+single_head   depth        G0         20   1.000   1.000   0.077
+single_head   depth        G1         80   0.996   0.988   0.179
+single_head   depth        G2         80   0.983   0.925   0.202
+single_head   depth        G3         80   0.768   0.700   0.100
+no_con        overall      all       260   0.853   0.773   0.083
+no_con        depth        G0         20   1.000   1.000   0.147
+no_con        depth        G1         80   0.996   0.975   0.203
+no_con        depth        G2         80   0.772   0.725   0.097
+no_con        depth        G3         80   0.595   0.562   0.078
+moe           seen_unseen  seen      100   1.000   1.000   0.109
+moe           seen_unseen  unseen    160   0.996   0.956   0.135
+single_head   seen_unseen  seen      100   0.989   0.950   0.167
+single_head   seen_unseen  unseen    160   0.922   0.838   0.122
+no_con        seen_unseen  seen      100   0.939   0.880   0.157
+no_con        seen_unseen  unseen    160   0.787   0.706   0.045
